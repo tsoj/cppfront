@@ -282,14 +282,14 @@ else {if ("current" == x) {ret |= current;}
 else {if ("obsolete" == x) {ret |= obsolete;}
 else {if ("cached_and_current" == x) {ret |= cached_and_current;}
 else {if ("none" == x) {ret |= none;}
-else {break;}
+else {CPP2_UFCS(report_violation)(cpp2::type_safety, CPP2_UFCS(c_str)(("can't convert string '" + cpp2::to_string(s) + "' to enum of type file_attributes")));
+return none; 
+}
 #line 1 "pure2-enum.cpp2"
 }}}}
 }
 
-return ret; CPP2_UFCS(report_violation)(cpp2::type_safety, CPP2_UFCS(c_str)(("can't convert string '" + cpp2::to_string(s) + "' to flag_enum of type file_attributes")));
-return none; 
-}
+return ret; }
 
 #line 28 "pure2-enum.cpp2"
 auto main() -> int{
@@ -391,6 +391,9 @@ auto main() -> int{
     std::cout << "f_from_string is " << CPP2_UFCS(to_string)(f_from_string) << "\n";
 
     f_from_string = file_attributes::from_string("(current, obsolete)");
+    std::cout << "f_from_string is " << CPP2_UFCS(to_string)(f_from_string) << "\n";
+
+    f_from_string = file_attributes::from_string("(current, whatever, obsolete)");
     std::cout << "f_from_string is " << CPP2_UFCS(to_string)(cpp2::move(f_from_string)) << "\n";
 }
 

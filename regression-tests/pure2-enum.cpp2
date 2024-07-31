@@ -125,4 +125,7 @@ main: () = {
 
     f_from_string = file_attributes::from_string("(current, obsolete)");
     std::cout << "f_from_string is " << f_from_string.to_string() << "\n";
+
+    f_from_string = file_attributes::from_string("(current, whatever, obsolete)");
+    std::cout << "f_from_string is " << f_from_string.to_string() << "\n";
 }

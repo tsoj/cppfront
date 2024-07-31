@@ -1207,6 +1207,8 @@ basic_enum: (
     {
         prefix    : std::string_view = "";
         combine_op: std::string_view = "return";
+        fallback_return := "        cpp2::type_safety.report_violation( (\"can't convert string '\" + cpp2::to_string(s) + \"' to (prefix)$enum of type (t.name())$\").c_str() );\n"
+                           "        return (default_value)$;\n";
 
         //  For flags, accept a list that we break apart and then |= together
         if bitwise 
@@ -1230,14 +1232,18 @@ basic_enum: (
         }
 
         if bitwise {
-            from_string += "            else { break; }\n"
+            from_string += "            else { ";
+            from_string += fallback_return;
+            from_string += " }\n"
                            "        }\n"
                            "        return ret;";
         }
+        else
+        {
+            from_string += fallback_return;
+        }
 
-        from_string += "        cpp2::type_safety.report_violation( (\"can't convert string '\" + cpp2::to_string(s) + \"' to (prefix)$enum of type (t.name())$\").c_str() );\n"
-                       "        return (default_value)$;\n"
-                       "    }\n\n";
+        from_string += "    }\n\n";
 
         t.add_member( from_string );
     }

@@ -1567,14 +1567,14 @@ else {if ("no_group_captures" == x) {ret |= no_group_captures;}
 else {if ("perl_code_syntax" == x) {ret |= perl_code_syntax;}
 else {if ("perl_code_syntax_in_classes" == x) {ret |= perl_code_syntax_in_classes;}
 else {if ("none" == x) {ret |= none;}
-else {break;}
+else {CPP2_UFCS(report_violation)(cpp2::type_safety, CPP2_UFCS(c_str)(("can't convert string '" + cpp2::to_string(s) + "' to enum of type expression_flags")));
+return none; 
+}
 #line 1 "cpp2regex.h2"
 }}}}}}
 }
 
-CPP2_UFCS(report_violation)(cpp2::type_safety, CPP2_UFCS(c_str)(("can't convert string '" + cpp2::to_string(s) + "' to flag_enum of type expression_flags")));
-return none; 
-}
+return ret; }
 
 template <typename Iter> match_group<Iter>::match_group(auto const& start_, auto const& end_, auto const& matched_)
                                                                  : start{ start_ }
