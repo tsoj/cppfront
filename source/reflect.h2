@@ -1212,6 +1212,49 @@ basic_enum: (
                             "    }\n";
         }
 
+        if bitwise {
+            from_string +=
+            "    result: (t.name())$ = (none);\n"
+            "    ss: std::stringstream = (std::string(s));\n"
+            "    word: std::string = ();\n"
+            "    success := false;\n"
+            "    found_first := false;\n"
+            "    found_last := false;\n"
+            "    while std::getline(ss, word, ',') {\n"
+            "        if word.ssize() < 2\n"
+            "        || found_last\n"
+            "        || (found_first && word.front() != ' ')\n"
+            "        || (!found_first && word.front() != '(') {\n"
+            "            success = false;\n"
+            "            break;\n"
+            "        }\n"
+            "        found_first = true;\n"
+            "        word.erase(0, 1);\n"
+            "        if word.back() == ')' {\n"
+            "            word.pop_back();\n"
+            "            found_last = true;\n"
+            "        }\n"
+            "        success = false;\n";
+  
+            for  enumerators
+            do   (e) {
+                from_string +=
+            "        if \"(e.name)$\" == word { \n"
+            "            result |= (e.name)$;\n"
+            "            success = true;\n"
+            "        }\n";
+            }
+
+            from_string +=
+            "        if !success {\n"
+            "            break;\n"
+            "        }\n"
+            "    }\n"
+            "    if success && found_last {\n"
+            "        return result;\n"
+            "    }";
+        }
+
         prefix: std::string = ();
         if bitwise { prefix = "flag_"; }
         from_string += "        cpp2::type_safety.report_violation( \"can't convert string to (prefix)$enum of type (t.name())$\" );\n"

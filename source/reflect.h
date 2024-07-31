@@ -39,7 +39,7 @@ class alias_declaration;
 #line 1006 "reflect.h2"
 class value_member_info;
 
-#line 1651 "reflect.h2"
+#line 1694 "reflect.h2"
 }
 
 }
@@ -708,7 +708,7 @@ auto basic_enum(
     cpp2::impl::in<bool> bitwise
     ) -> void;
 
-#line 1226 "reflect.h2"
+#line 1269 "reflect.h2"
 //-----------------------------------------------------------------------
 //
 //    "An enum[...] is a totally ordered value type that stores a
@@ -720,7 +720,7 @@ auto basic_enum(
 //
 auto cpp2_enum(meta::type_declaration& t) -> void;
 
-#line 1252 "reflect.h2"
+#line 1295 "reflect.h2"
 //-----------------------------------------------------------------------
 //
 //     "flag_enum expresses an enumeration that stores values
@@ -733,7 +733,7 @@ auto cpp2_enum(meta::type_declaration& t) -> void;
 //
 auto flag_enum(meta::type_declaration& t) -> void;
 
-#line 1284 "reflect.h2"
+#line 1327 "reflect.h2"
 //-----------------------------------------------------------------------
 //
 //     "As with void*, programmers should know that unions [...] are
@@ -760,14 +760,14 @@ auto flag_enum(meta::type_declaration& t) -> void;
 
 auto cpp2_union(meta::type_declaration& t) -> void;
 
-#line 1455 "reflect.h2"
+#line 1498 "reflect.h2"
 //-----------------------------------------------------------------------
 //
 //  print - output a pretty-printed visualization of t
 //
 auto print(cpp2::impl::in<meta::type_declaration> t) -> void;
 
-#line 1465 "reflect.h2"
+#line 1508 "reflect.h2"
 //-----------------------------------------------------------------------
 //
 //  regex - creates regular expressions from members
@@ -784,7 +784,7 @@ auto print(cpp2::impl::in<meta::type_declaration> t) -> void;
 //
 auto regex_gen(meta::type_declaration& t) -> void;
 
-#line 1532 "reflect.h2"
+#line 1575 "reflect.h2"
 //-----------------------------------------------------------------------
 //
 //  apply_metafunctions
@@ -795,7 +795,7 @@ auto regex_gen(meta::type_declaration& t) -> void;
     auto const& error
     ) -> bool;
 
-#line 1651 "reflect.h2"
+#line 1694 "reflect.h2"
 }
 
 }
@@ -1854,7 +1854,7 @@ std::string to_string{"    to_string: (this) -> std::string = { \n"};
         }
 
         for ( 
-              auto const& e : enumerators ) {
+              auto const& e : cpp2::move(enumerators) ) {
             if (e.name != "_") {// ignore unnamed values
                 if (bitwise) {
                     if (e.name != "none") {
@@ -1887,10 +1887,53 @@ std::string from_string{"    from_string: (s: std::string_view) -> " + cpp2::to_
 #line 1207 "reflect.h2"
     {
         for ( 
-              auto const& e : cpp2::move(enumerators) ) {
+              auto const& e : enumerators ) {
             from_string += "    if \"" + cpp2::to_string(e.name) + "\" == s { "
                             "        return " + cpp2::to_string(e.name) + ";"
                             "    }\n";
+        }
+
+        if (bitwise) {
+            from_string += 
+            "    result: " + cpp2::to_string(CPP2_UFCS(name)(t)) + " = (none);\n"
+            "    ss: std::stringstream = (std::string(s));\n"
+            "    word: std::string = ();\n"
+            "    success := false;\n"
+            "    found_first := false;\n"
+            "    found_last := false;\n"
+            "    while std::getline(ss, word, ',') {\n"
+            "        if word.ssize() < 2\n"
+            "        || found_last\n"
+            "        || (found_first && word.front() != ' ')\n"
+            "        || (!found_first && word.front() != '(') {\n"
+            "            success = false;\n"
+            "            break;\n"
+            "        }\n"
+            "        found_first = true;\n"
+            "        word.erase(0, 1);\n"
+            "        if word.back() == ')' {\n"
+            "            word.pop_back();\n"
+            "            found_last = true;\n"
+            "        }\n"
+            "        success = false;\n";
+
+            for ( 
+                  auto const& e : cpp2::move(enumerators) ) {
+                from_string += 
+            "        if \"" + cpp2::to_string(e.name) + "\" == word { \n"
+            "            result |= " + cpp2::to_string(e.name) + ";\n"
+            "            success = true;\n"
+            "        }\n";
+            }
+
+            from_string += 
+            "        if !success {\n"
+            "            break;\n"
+            "        }\n"
+            "    }\n"
+            "    if success && found_last {\n"
+            "        return result;\n"
+            "    }";
         }
 
         std::string prefix {}; 
@@ -1902,10 +1945,10 @@ std::string from_string{"    from_string: (s: std::string_view) -> " + cpp2::to_
         CPP2_UFCS(add_member)(t, cpp2::move(from_string));
     }
 }
-#line 1223 "reflect.h2"
+#line 1266 "reflect.h2"
 }
 
-#line 1235 "reflect.h2"
+#line 1278 "reflect.h2"
 auto cpp2_enum(meta::type_declaration& t) -> void
 {
     //  Let basic_enum do its thing, with an incrementing value generator
@@ -1922,7 +1965,7 @@ auto cpp2_enum(meta::type_declaration& t) -> void
     );
 }
 
-#line 1262 "reflect.h2"
+#line 1305 "reflect.h2"
 auto flag_enum(meta::type_declaration& t) -> void
 {
     //  Let basic_enum do its thing, with a power-of-two value generator
@@ -1944,7 +1987,7 @@ auto flag_enum(meta::type_declaration& t) -> void
     );
 }
 
-#line 1308 "reflect.h2"
+#line 1351 "reflect.h2"
 auto cpp2_union(meta::type_declaration& t) -> void
 {
     std::vector<value_member_info> alternatives {}; 
@@ -1953,7 +1996,7 @@ auto value{0};
 
     //  1. Gather: All the user-written members, and find/compute the max size
 
-#line 1315 "reflect.h2"
+#line 1358 "reflect.h2"
     for ( 
 
            auto const& m : CPP2_UFCS(get_members)(t) )  { do 
@@ -1983,7 +2026,7 @@ auto value{0};
     } while (false); ++value; }
 }
 
-#line 1343 "reflect.h2"
+#line 1386 "reflect.h2"
     std::string discriminator_type {}; 
     if (cpp2::impl::cmp_less(CPP2_UFCS(ssize)(alternatives),std::numeric_limits<cpp2::i8>::max())) {
         discriminator_type = "i8";
@@ -1998,7 +2041,7 @@ auto value{0};
         discriminator_type = "i64";
     }}}
 
-#line 1358 "reflect.h2"
+#line 1401 "reflect.h2"
     //  2. Replace: Erase the contents and replace with modified contents
 
     CPP2_UFCS(remove_marked_members)(t);
@@ -2007,7 +2050,7 @@ std::string storage{"    _storage: cpp2::aligned_storage<cpp2::max( "};
 
     //  Provide storage
 
-#line 1364 "reflect.h2"
+#line 1407 "reflect.h2"
     {
         for ( 
               auto const& e : alternatives ) {
@@ -2027,7 +2070,7 @@ std::string storage{"    _storage: cpp2::aligned_storage<cpp2::max( "};
 }
 
     //  Provide discriminator
-#line 1382 "reflect.h2"
+#line 1425 "reflect.h2"
     CPP2_UFCS(add_member)(t, "    _discriminator: " + cpp2::to_string(cpp2::move(discriminator_type)) + " = -1;\n");
 
     //  Add the alternatives: is_alternative, get_alternative, and set_alternative
@@ -2063,7 +2106,7 @@ std::string destroy{"    private _destroy: (inout this) = {\n"};
 
     //  Add destroy
 
-#line 1415 "reflect.h2"
+#line 1458 "reflect.h2"
     {
         for ( 
               auto const& a : alternatives ) {
@@ -2077,7 +2120,7 @@ std::string destroy{"    private _destroy: (inout this) = {\n"};
 }
 
     //  Add the destructor
-#line 1427 "reflect.h2"
+#line 1470 "reflect.h2"
     CPP2_UFCS(add_member)(t, "    operator=: (move this) = { _destroy(); _ = this; }");
 
     //  Add default constructor
@@ -2087,7 +2130,7 @@ std::string value_set{""};
 
     //  Add copy/move construction and assignment
 
-#line 1434 "reflect.h2"
+#line 1477 "reflect.h2"
     {
         for ( 
               auto const& a : cpp2::move(alternatives) ) {
@@ -2107,16 +2150,16 @@ std::string value_set{""};
                     );
     }
 }
-#line 1452 "reflect.h2"
+#line 1495 "reflect.h2"
 }
 
-#line 1459 "reflect.h2"
+#line 1502 "reflect.h2"
 auto print(cpp2::impl::in<meta::type_declaration> t) -> void
 {
     std::cout << CPP2_UFCS(print)(t) << "\n";
 }
 
-#line 1479 "reflect.h2"
+#line 1522 "reflect.h2"
 auto regex_gen(meta::type_declaration& t) -> void
 {
     auto has_default {false}; 
@@ -2169,7 +2212,7 @@ auto regex_gen(meta::type_declaration& t) -> void
     }
 }
 
-#line 1536 "reflect.h2"
+#line 1579 "reflect.h2"
 [[nodiscard]] auto apply_metafunctions(
     declaration_node& n, 
     type_declaration& rtype, 
@@ -2284,7 +2327,7 @@ auto regex_gen(meta::type_declaration& t) -> void
     return true; 
 }
 
-#line 1651 "reflect.h2"
+#line 1694 "reflect.h2"
 }
 
 }

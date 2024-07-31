@@ -121,6 +121,10 @@ main: () = {
     } << "\n";
 
     f_from_string := file_attributes::from_string("cached_and_current");
+    f2_from_string := file_attributes::from_string("(current, obsolete)");
+    f3_from_string := file_attributes::from_string("(cached_and_current, obsolete)");
 
     std::cout << "f_from_string is " << f_from_string.to_string() << "\n";
+    std::cout << "f2_from_string is " << f2_from_string.to_string() << "\n";
+    std::cout << "f3_from_string is " << f3_from_string.to_string() << "\n";
 }

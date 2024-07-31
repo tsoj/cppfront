@@ -266,7 +266,70 @@ constexpr auto file_attributes::operator=(file_attributes&& that) noexcept -> fi
     if ("obsolete" == s) {return obsolete; }
     if ("cached_and_current" == s) {return cached_and_current; }
     if ("none" == s) {return none; }
-    CPP2_UFCS(report_violation)(cpp2::type_safety, "can't convert string to flag_enum of type file_attributes");
+
+    file_attributes result {none}; 
+
+    std::stringstream ss {std::string(s)}; 
+
+    std::string word {}; 
+
+    auto success {false}; 
+
+    auto found_first {false}; 
+
+    auto found_last {false}; 
+    while( std::getline(ss, word, ',') ) {
+    if (cpp2::impl::cmp_less(CPP2_UFCS(ssize)(word),2) 
+    ||
+     
+    found_last
+     
+    ||
+     
+    (found_first && CPP2_UFCS(front)(word) != ' ')
+     
+    ||
+     
+    (!(found_first) && CPP2_UFCS(front)(word) != '(')
+    ) 
+    {
+    success = false;
+    break;
+    }
+    found_first = true;
+    CPP2_UFCS(erase)(word, 0, 1);
+    if (CPP2_UFCS(back)(word) == ')') {
+    CPP2_UFCS(pop_back)(word);
+    found_last = true;
+    }
+    success = false;
+    if ("cached" == word) {
+    result |= cached;
+    success = true;
+    }
+    if ("current" == word) {
+    result |= current;
+    success = true;
+    }
+    if ("obsolete" == word) {
+    result |= obsolete;
+    success = true;
+    }
+    if ("cached_and_current" == word) {
+    result |= cached_and_current;
+    success = true;
+    }
+    if ("none" == word) {
+    result |= none;
+    success = true;
+    }
+    if (!(success)) {
+    break;
+    }
+    }
+    if (cpp2::move(success) && cpp2::move(found_last)) {
+    return result; 
+    }CPP2_UFCS(report_violation)(cpp2::type_safety, "can't convert string to flag_enum of type file_attributes");
     return none; }
 #line 28 "pure2-enum.cpp2"
 auto main() -> int{
@@ -365,7 +428,11 @@ auto main() -> int{
     () << "\n";
 
     auto f_from_string {file_attributes::from_string("cached_and_current")}; 
+    auto f2_from_string {file_attributes::from_string("(current, obsolete)")}; 
+    auto f3_from_string {file_attributes::from_string("(cached_and_current, obsolete)")}; 
 
     std::cout << "f_from_string is " << CPP2_UFCS(to_string)(cpp2::move(f_from_string)) << "\n";
+    std::cout << "f2_from_string is " << CPP2_UFCS(to_string)(cpp2::move(f2_from_string)) << "\n";
+    std::cout << "f3_from_string is " << CPP2_UFCS(to_string)(cpp2::move(f3_from_string)) << "\n";
 }
 
